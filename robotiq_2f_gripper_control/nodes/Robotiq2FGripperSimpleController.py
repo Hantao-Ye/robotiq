@@ -43,8 +43,6 @@ This serves as an example for publishing messages on the 'Robotiq2FGripperRobotO
 
 import rospy
 from robotiq_2f_gripper_control.msg import _Robotiq2FGripper_robot_output as outputMsg
-from six.moves import input
-
 
 def genCommand(char, command):
     """Update the command according to the character entered by the user."""
