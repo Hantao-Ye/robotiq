@@ -54,7 +54,7 @@ def mainLoop(device):
     gripper = (
         robotiq_2f_gripper_control.baseRobotiq2FGripper.robotiqbaseRobotiq2FGripper()
     )
-    gripper.client = robotiq_modbus_rtu.comModbusRtu.communication()
+    gripper.client = robotiq_modbus_rtu.comModbusRtu.communication(retry=True)
 
     # We connect to the address received as an argument
     gripper.client.connectToDevice(device)
@@ -62,16 +62,12 @@ def mainLoop(device):
     rospy.init_node("robotiq2FGripper")
 
     # The Gripper status is published on the topic named 'Robotiq2FGripperRobotInput'
-    pub = rospy.Publisher(
-        "Robotiq2FGripperRobotInput", inputMsg.Robotiq2FGripper_robot_input
-    )
+    pub = rospy.Publisher("Robotiq2FGripperRobotInput",
+                          inputMsg.Robotiq2FGripper_robot_input, queue_size=10)
 
     # The Gripper command is received from the topic named 'Robotiq2FGripperRobotOutput'
-    rospy.Subscriber(
-        "Robotiq2FGripperRobotOutput",
-        outputMsg.Robotiq2FGripper_robot_output,
-        gripper.refreshCommand,
-    )
+    rospy.Subscriber("Robotiq2FGripperRobotOutput",
+                     outputMsg.Robotiq2FGripper_robot_output, gripper.refreshCommand)
 
     # We loop
     while not rospy.is_shutdown():
