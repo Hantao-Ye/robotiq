@@ -42,11 +42,10 @@ Module comModbusRtu: defines a class which communicates with Robotiq Grippers us
 The module depends on pymodbus (https://code.google.com/p/pymodbus/) for the Modbus RTU client.
 """
 
-from .robotiqmodbus.client.sync import ModbusSerialClient
+from pymodbus.client import ModbusSerialClient
 from pymodbus.register_read_message import ReadHoldingRegistersResponse
 from pymodbus.register_write_message import WriteMultipleRegistersResponse
 from math import ceil
-
 
 class communication:
     def __init__(self, retry=False):
@@ -119,7 +118,6 @@ class communication:
 
         # Instantiate output as an empty list
         output = []
-
         # Fill the output with the bytes in the appropriate order
         for i in range(0, numRegs):
             output.append((response.getRegister(i) & 0xFF00) >> 8)

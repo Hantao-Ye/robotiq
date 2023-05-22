@@ -46,10 +46,11 @@ from robotiq_2f_gripper_control.msg import _Robotiq2FGripper_robot_output as out
 class robotiqbaseRobotiq2FGripper:
     """Base class (communication protocol agnostic) for sending commands and receiving the status of the Robotic 2F gripper"""
 
-    def __init__(self):
+    def __init__(self, client):
 
         # Initiate output message as an empty list
         self.message = []
+        self.client = client
 
         # Note: after the instantiation, a ".client" member must be added to the object
 

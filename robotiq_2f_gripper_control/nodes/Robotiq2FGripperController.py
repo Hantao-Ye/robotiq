@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 import numpy as np
 
 import rospy
@@ -14,18 +15,18 @@ from robotiq_2f_gripper_control.msg import Robotiq2FGripper_robot_input as input
 
 
 class RobotiqCGripper(object):
-    def __init__(self):
+    def __init__(self, gripper_name='gripper'):
         self.cur_status = None
         self.cmd_sub = rospy.Subscriber('gripper_close', Bool, self._cmd_cb)
         self.joint_pub = rospy.Publisher(
             '/joint_states', JointState, queue_size=10)
-        self.status_sub = rospy.Subscriber('Robotiq2FGripperRobotInput', inputMsg,
-                                           self._status_cb)
+        self.status_sub = rospy.Subscriber(
+            gripper_name + '_input', inputMsg, self._status_cb)
         self.cmd_pub = rospy.Publisher(
-            'Robotiq2FGripperRobotOutput', outputMsg, queue_size=10)
+            gripper_name + '_output', outputMsg, queue_size=10)
         self.r = rospy.Rate(100)
         self.command_sub = rospy.Subscriber(
-            'gripper_controller/gripper_action/goal', FollowJointTrajectoryActionGoal, self.callback)
+            gripper_name + '/goal', FollowJointTrajectoryActionGoal, self.callback)
         print('hit')
 
     def callback(self, msg):
@@ -221,10 +222,16 @@ class RobotiqCGripper(object):
         return self.goto(-1.0, vel, force, block=block, timeout=timeout)
 
 
-def main():
-    rospy.init_node("robotiq_2f_gripper_ctrl_test")
-    gripper = RobotiqCGripper()
-    gripper.wait_for_connection()
+def main(gripper_name):
+    rospy.init_node("robotiq_2f_gripper_ctrl")
+    gripper = RobotiqCGripper(gripper_name)
+
+    # BUG: Try to fix the wait for connection failure 
+    if gripper.wait_for_connection(10) is False:
+        rospy.logerr("Failed to connect gripper")
+        rospy.signal_shutdown("Node useless")
+        return
+
     is_reset = gripper.is_reset()
     rospy.loginfo('is_reset={}'.format(is_reset))
     if is_reset:
@@ -244,4 +251,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1])
