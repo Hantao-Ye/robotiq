@@ -1,12 +1,23 @@
 <launch>
     <arg name="gripper_name" default="gripper" />
     <arg name="device" default="/dev/ttyUSB1" />
-    
-    <inlude file="$(find robotiq_2f_gripper_action_server)/launch/robotiq_2f_gripper_action_server.launch">
-        <arg name="gripper_name" value="$(arg gripper_name)"/>
-    /</inlude>
+    <arg name="gui" default="True" />
+    <param name="use_gui" value="$(arg gui)" />
 
-    <node name="robotiq_2f_gripper_connect" pkg="robotiq_2f_gripper_control" type="Robotiq2FGripperRtuNode.py" args="$(arg device)"/>
-    <!-- TODO: Finish the controller node py according to src/robotiq_2f_gripper_control/robotiq_2f_gripper_ctrl.py -->
-    <!-- <node name="robotiq_2f_gripper_control" pkg="robotiq_2f_gripper_control" type="Robotiq2FGripperController.py" output="screen"/> -->
+    <param name="robot_description"
+        command="$(find xacro)/xacro $(find robotiq_2f_85_gripper_visualization)/urdf/robotiq_arg2f_85_model.xacro" />
+
+    <include
+        file="$(find robotiq_2f_gripper_action_server)/launch/robotiq_2f_gripper_action_server.launch">
+        <arg name="gripper_name" value="$(arg gripper_name)" />
+    </include>
+
+    <node name="robotiq_2f_gripper_connect" pkg="robotiq_2f_gripper_control"
+        type="Robotiq2FGripperRtuNode.py" args="$(arg device)" />
+
+    <node name="robotiq_2f_gripper_control" pkg="robotiq_2f_gripper_control"
+        type="Robotiq2FGripperController.py" output="screen" />
+
+    <node name="rviz" pkg="rviz" type="rviz"
+        args="-d $(find robotiq_2f_85_gripper_visualization)/visualize.rviz" required="true" />
 </launch>
